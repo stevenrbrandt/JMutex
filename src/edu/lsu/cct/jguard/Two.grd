@@ -1,0 +1,22 @@
+class Two {
+    static Guard a = new Guard();
+    static Guard b = new Guard();
+    public static void main(String[] args) {
+
+        int n1 = guarded a {
+            Future<int> inner = guarded b {
+                return 3;
+            };
+            await inner
+            return 4 + inner;
+        };
+
+        int n2 = guarded b {
+            int inner = guarded a {
+                return 4;
+            };
+            await inner
+            return 3 + inner;
+        };
+    }
+}
