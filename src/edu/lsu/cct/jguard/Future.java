@@ -9,22 +9,22 @@ package edu.lsu.cct.jguard;
  *
  * @author sbrandt
  */
-public class Future {
-    int count;
-    public synchronized void incr() {
-        count++;
+public class Future<T> {
+    private volatile T data;
+    private volatile Exception ex = new Exception("Not set");
+    
+    void set(T data) {
+        ex = null;
+        this.data = data;
     }
-    public synchronized void decr() {
-        count--;
-        if(count == 0)
-            notifyAll();
+    void setEx(Exception ex) {
+        this.ex = ex;
+        this.data = null;
     }
-    public synchronized void await() {
-        while(count > 0) {
-            try {
-                wait();
-            } catch (InterruptedException ex) {
-            }
-        }
+    GuardWatcher watcher = new GuardWatcher();
+    public T get() { 
+        if(ex != null)
+            throw new RuntimeException(ex);
+        return data;
     }
 }

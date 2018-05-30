@@ -20,11 +20,11 @@ public class Pseudo {
     }
     
     static Guard g = new Guard();
-    static Future f = new Future();
+    static GuardWatcher f = new GuardWatcher();
 
     public static void main(String[] args) {
-        Set<Future> _f_local_set = new HashSet<>(); // generated
-        Future _f_local = new Future(); // generated
+        Set<GuardWatcher> _f_local_set = new HashSet<>(); // generated
+        GuardWatcher _f_local = new GuardWatcher(); // generated
         _f_local_set.add(_f_local); // generated
         
         final int N = 10000;

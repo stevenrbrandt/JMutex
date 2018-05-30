@@ -1,12 +1,14 @@
 class Two {
+    // Deadlock example
     static Guard a = new Guard();
     static Guard b = new Guard();
     public static void main(String[] args) {
 
         int n1 = guarded a {
-            Future<int> inner = guarded b {
+            int inner = guarded b {
                 return 3;
             };
+            // illegal call to await in guard
             await inner
             return 4 + inner;
         };
@@ -15,8 +17,12 @@ class Two {
             int inner = guarded a {
                 return 4;
             };
+            // illegal call to await in guard
             await inner
             return 3 + inner;
         };
+
+        await n1, n2;
+        System.out.println(n1+n2);
     }
 }

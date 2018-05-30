@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -31,10 +34,11 @@ public class Guard implements Comparable<Guard> {
         runGuarded(g, r, null);
     }
 
-    public static void runGuarded(Guard g, Runnable r, Set<Future> fs) {
-        if(fs != null) {
-            for(Future f : fs)
+    public static void runGuarded(Guard g, Runnable r, Set<GuardWatcher> fs) {
+        if (fs != null) {
+            for (GuardWatcher f : fs) {
                 f.incr();
+            }
         }
         Runnable task = new Runnable() {
             @Override
@@ -46,7 +50,7 @@ public class Guard implements Comparable<Guard> {
                     g.lock.unlock();
                 }
                 if (fs != null) {
-                    for (Future f : fs) {
+                    for (GuardWatcher f : fs) {
                         f.decr();
                     }
                 }
@@ -55,14 +59,35 @@ public class Guard implements Comparable<Guard> {
         POOL.execute(task);
     }
 
+    public static <T> void runGuarded(Guard g, Callable<T> r, Future<T> fut, Set<GuardWatcher> fs) {
+        runGuarded(g, () -> {
+            try {
+                fut.set(r.call());
+            } catch (Exception ex) {
+                fut.setEx(ex);
+            }
+        }, fs);
+    }
+
     public static void runGuarded(TreeSet<Guard> gs, Runnable r) {
         runGuarded(gs, r, null);
     }
+    
+    public static <T> void runGuarded(TreeSet<Guard> gs, Callable<T> r, Future<T> fut, Set<GuardWatcher> fs) {
+        runGuarded(gs, () -> {
+            try {
+                fut.set(r.call());
+            } catch (Exception ex) {
+                fut.setEx(ex);
+            }
+        }, fs);
+    }
 
-    public static void runGuarded(TreeSet<Guard> gs, Runnable r, Set<Future> fs) {
-        if(fs != null) {
-            for(Future f : fs)
+    public static void runGuarded(TreeSet<Guard> gs, Runnable r, Set<GuardWatcher> fs) {
+        if (fs != null) {
+            for (GuardWatcher f : fs) {
                 f.incr();
+            }
         }
         Runnable task = new Runnable() {
             @Override
@@ -77,7 +102,7 @@ public class Guard implements Comparable<Guard> {
                         g.lock.unlock();
                     }
                     if (fs != null) {
-                        for (Future f : fs) {
+                        for (GuardWatcher f : fs) {
                             f.decr();
                         }
                     }
