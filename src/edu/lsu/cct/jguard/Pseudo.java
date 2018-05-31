@@ -7,6 +7,7 @@ package edu.lsu.cct.jguard;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -23,22 +24,20 @@ public class Pseudo {
     static GuardWatcher f = new GuardWatcher();
 
     public static void main(String[] args) {
-        Set<GuardWatcher> _f_local_set = new HashSet<>(); // generated
-        GuardWatcher _f_local = new GuardWatcher(); // generated
-        _f_local_set.add(_f_local); // generated
+        GuardWatcher f = new GuardWatcher();
         
         final int N = 10000;
 
         for(int i=0;i<N;i++) {
             // guarded g { incr(); } -> f;
-            _f_local_set.add(f); // generated
-            Guard.runGuarded(g, ()->{ incr(); },_f_local_set);
+            Guard.runGuarded(g, ()->{ incr(); },f);
         }
 
-        // await guards, f
-        _f_local.await();
-        f.await();
+        // await 
+        f.await(()->{
+            System.out.println("counter="+counter);
+        });
         
-        System.out.println("counter="+counter);
+        Guard.POOL.awaitQuiescence(1, TimeUnit.DAYS);
     }
 }

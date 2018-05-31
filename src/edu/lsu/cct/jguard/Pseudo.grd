@@ -10,7 +10,7 @@ class Pseudo {
     }
 
     static Guard g = new Guard();
-    static Future f = new Future();
+    static GuardWatcher f = new GuardWatcher();
 
     public static void main(String[] args) {
         final int N = 10000;
@@ -19,7 +19,7 @@ class Pseudo {
             guarded g { incr(); } -> f;
         }
 
-        await guards, f
+        await f
         System.out.println("counter="+counter);
     }
 }

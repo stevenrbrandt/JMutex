@@ -1,13 +1,15 @@
 class Two {
-    // Deadlock example
     static Guard a = new Guard();
     static Guard b = new Guard();
     public static void main(String[] args) {
 
         int n1 = guarded a {
+            // Note: guard a is held here
             int inner = guarded b {
+                // Note: guard a is not held here
                 return 3;
             };
+            // Note: guard a is held here
             // illegal call to await in guard
             await inner
             return 4 + inner;

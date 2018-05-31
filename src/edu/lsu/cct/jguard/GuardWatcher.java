@@ -21,7 +21,7 @@ public class GuardWatcher {
         if(count == 0)
             notifyAll();
     }
-    public synchronized void await() {
+    private synchronized void await() {
         while(count > 0) {
             try {
                 wait();
@@ -29,9 +29,24 @@ public class GuardWatcher {
             }
         }
     }
-    public static void await(Set<GuardWatcher> gset) {
-        for(GuardWatcher gw : gset) {
-            gw.await();
-        }
+
+    public static void await(Set<GuardWatcher> gset, Runnable r) {
+        Guard.POOL.execute(() -> {
+            for (GuardWatcher gw : gset) {
+                gw.await();
+            }
+            r.run();
+        });
+    }
+
+    public void await(Runnable r) {
+        Guard.POOL.execute(() -> {
+            await();
+            try {
+                r.run();
+            } catch(Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 }
