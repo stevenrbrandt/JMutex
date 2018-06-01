@@ -3,28 +3,26 @@ class Two {
     static Guard b = new Guard();
     public static void main(String[] args) {
 
-        int n1 = guarded a {
+        Future<int> fn1 = guarded a {
             // Note: guard a is held here
             int inner = guarded b {
                 // Note: guard a is not held here
                 return 3;
             };
             // Note: guard a is held here
-            // illegal call to await in guard
             await inner
             return 4 + inner;
         };
 
-        int n2 = guarded b {
+        Future<int> fn2 = guarded b {
             int inner = guarded a {
                 return 4;
             };
-            // illegal call to await in guard
             await inner
             return 3 + inner;
         };
 
-        await n1, n2;
+        await fn1 -> n1, fn2 -> n2;
         System.out.println(n1+n2);
     }
 }

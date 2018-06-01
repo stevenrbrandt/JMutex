@@ -33,7 +33,7 @@ public class Pseudo {
             Guard.runGuarded(g, ()->{ incr(); },f);
         }
 
-        // await 
+        // await f
         f.await(()->{
             System.out.println("counter="+counter);
         });

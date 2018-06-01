@@ -26,8 +26,8 @@ public class Two {
 //            int inner = guarded b {
 //                return 3;
 //            };
-//            await inner
-//            return 4 + inner;
+//            await inner -> inner_
+//            return 4 + inner_;
 //        };
 
         Callable<Future<Integer>> n1c = ()->{
@@ -37,6 +37,7 @@ public class Two {
             Future<Integer> inner = new Future<>();
             Guard.runGuarded(b,inner.run(c));
             
+            // await inner
             return inner.then((Integer inner_)->{
                 return 4 + inner_;
             });
@@ -50,8 +51,8 @@ public class Two {
 //            int inner = guarded a {
 //                return 4;
 //            };
-//            await inner
-//            return 3 + inner;
+//            await inner -> inner_
+//            return 3 + inner_;
 //        };
 
         Callable<Future<Integer>> n2c = ()->{
@@ -68,7 +69,7 @@ public class Two {
         Future<Integer> n2 = new Future<>();
         Guard.runGuarded(b,n2.runFut(n2c),n2.watcher);
         
-        // await n1, n2;
+        // await n1 -> n1_, n2 -> n2_;
         n1.then((Integer n1_)->{
             n2.then((Integer n2_)->{
                 // System.out.println(n1 + n2);
