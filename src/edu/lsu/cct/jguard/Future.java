@@ -57,6 +57,26 @@ public class Future<T> {
         return f;
     }
     
+    public void setFut(Future<T> fut) {
+        fut.then((T value)->{
+            set(value);
+            watcher.decr();
+        });
+    }
+    public <R> Future<R> thenFut(Callable1<T,Future<R>> c) {
+        Future<R> f = new Future<>();
+        f.watcher.incr();
+        watcher.await(()->{
+            try {
+                f.setFut(c.call(data));
+            } catch (Exception ex) {
+                f.setEx(ex);
+                f.watcher.decr();
+            }
+        });
+        return f;
+    }
+    
     public Runnable run(Callable<T> c) {
         watcher.incr();
         return () -> {
