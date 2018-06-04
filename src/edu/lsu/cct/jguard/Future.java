@@ -27,11 +27,6 @@ public class Future<T> {
         this.data = null;
     }
     GuardWatcher watcher = new GuardWatcher();
-    public T get() { 
-        if(ex != null)
-            throw new RuntimeException(ex);
-        return data;
-    }
     
     public void then(Runnable1<T> r) {
         watcher.await(()->{
